@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17282f">
+  <meta name="description" content="Open the load guide or scan the QR code to use it on your phone.">
+  <title>Load Guide</title>
+  <script>if(location.hash==='#guide')location.replace(new URL('./guide.html',location.href).href);</script>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./landing.css">
+</head>
+<body>
+  <main class="landing">
+    <h1><img src="./icon.svg" alt="" width="36" height="36">Load Guide</h1>
+    <div class="landing-cards">
+      <a class="landing-card guide-card" href="./guide.html" aria-label="Open load guide">
+        <div class="card-heading"><h2>Load guide</h2><span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 7 9-5 9 5v10l-9 5-9-5Zm0 0 9 5 9-5m-9 5v10"/></svg></span></div>
+        <div class="card-visual"><img class="load-preview" src="./load-preview.svg" alt="The example shipment arranged in a semitrailer"></div>
+        <div class="card-footer"><span class="open-guide">Open guide <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></span><span class="load-summary">try with example load</span></div>
+      </a>
+      <section class="landing-card mobile-card" aria-labelledby="mobile-title">
+        <div class="card-heading"><h2 id="mobile-title">Test on mobile</h2><span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg></span></div>
+        <div class="card-visual qr-visual"><img class="qr-code" src="./load-guide-qr.svg" alt="Scan to open the load guide at timohynninen.github.io/loadguide/guide.html" width="256" height="256"></div>
+        <div class="card-footer qr-footer"><p>Scan with your phone’s camera.</p><span class="qr-address">timohynninen.github.io/loadguide/guide.html</span></div>
+      </section>
+    </div>
+    <nav class="landing-help" aria-label="Help"><a href="./user-guide.html">User guide</a><a href="./user-guide.pdf" download>Download PDF</a></nav>
+  </main>
+</body>
+</html>

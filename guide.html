@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17242b">
+  <meta name="description" content="See the whole load. Follow each row. A static visual loading guide for cargo crews.">
+  <title>Load Guide — a clear view of every load</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./style.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+  <script src="./vendor/xlsx.full.min.js" defer></script>
+  <script src="./app.js" type="module"></script>
+</head>
+<body>
+<div class="app-shell">
+  <main class="workspace">
+    <nav class="row-nav" aria-label="Loading rows"><div id="row-list" class="row-list"></div></nav>
+    <section class="viewer" aria-label="Interactive cargo visualization">
+      <div id="scene" class="scene"><div class="scene-loading"><span class="spinner"></span>Preparing your load…</div></div>
+      <div class="viewer-top"><div class="view-buttons" role="group" aria-label="Camera view"><button data-view="iso" class="selected" aria-pressed="true">3D</button><button data-view="top" aria-pressed="false">Top</button><button data-view="rear" aria-pressed="false">Rear</button></div><div class="viewer-tools"><button id="overview-button" class="icon-button" aria-label="Overview" aria-pressed="true" title="Overview"><span data-icon="layers"></span></button><a class="icon-button itinerary-control" href="./example-shipment.xlsx" download aria-label="Download itinerary" title="Download itinerary"><span data-icon="download"></span></a><button id="focus-button" class="icon-button" aria-label="Fit the current load in view" title="Fit view"><span data-icon="focus"></span></button><button id="zoom-in" class="icon-button" aria-label="Zoom in"><span data-icon="plus"></span></button><button id="zoom-out" class="icon-button" aria-label="Zoom out"><span data-icon="minus"></span></button></div></div>
+      <div id="stage-badge" class="stage-badge"><span class="badge-dot"></span>Complete load</div>
+      <div id="scene-error" class="scene-error" hidden><strong>3D view is unavailable on this device.</strong><p>You can still follow the row map and item instructions below.</p><div id="fallback-map"></div></div>
+      <div class="viewer-bottom"><div class="scene-legend"><span id="legend-current">Item colours</span><span id="loaded-legend" hidden>✓ Loaded</span><span id="upcoming-legend" hidden>Faded: upcoming</span></div><button id="show-future" class="text-button" hidden aria-pressed="true">Hide upcoming</button></div>
+    </section>
+    <aside class="instruction-panel" aria-label="Loading instructions"><div id="instructions"></div><div id="step-announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div></aside>
+  </main>
+  <footer class="loading-footer"><div class="progress-area"><div class="progress-label"><strong id="progress-number">0 of 25</strong><span>items loaded</span><button id="reset-progress" class="text-button" hidden>Reset</button></div><div id="progress-track" class="progress-track" role="progressbar" aria-label="Cargo loaded" aria-valuemin="0" aria-valuemax="25" aria-valuenow="0"></div></div><div class="footer-navigation"><button id="previous-button" class="button subtle" hidden><span data-icon="arrow-left"></span><span>Back</span></button><button id="next-button" class="button subtle" hidden><span>Next</span><span data-icon="arrow-right"></span></button><button id="confirm-button" class="button primary"><span>Start loading</span><span data-icon="arrow-right"></span></button></div></footer>
+</div>
+<button id="upload-button" hidden>Open shipment</button><button id="help-button" hidden>Help</button>
+<dialog id="upload-dialog" aria-labelledby="upload-title"><div class="dialog-header"><div><div class="eyebrow">A NEW LOAD</div><h2 id="upload-title">Open a shipment</h2></div><button class="icon-button" data-close="upload-dialog" aria-label="Close upload dialog"><span data-icon="close"></span></button></div><p class="dialog-intro">Use an Excel workbook or CSV with the same cargo columns as the example. Your file stays in this browser.</p><label class="dropzone" id="dropzone" for="shipment-file"><span class="upload-circle" data-icon="upload"></span><strong>Choose a file or drop it here</strong><span>Excel (.xlsx) or CSV · up to 8 MB</span><input type="file" id="shipment-file" accept=".xlsx,.csv" aria-label="Choose a shipment workbook or CSV"></label><div id="upload-status" class="upload-status" role="status" hidden></div><div class="format-note"><strong>What the guide reads</strong><p>Quantity, length, width, height, and gross weight. Optional IDs, product names, pallet counts, and stacking limits are preserved.</p><p>A <strong>Loading plan</strong> sheet uses its specified rows and lanes. A list without a plan gets a suggested, unrotated layout. Unspecified stacking is disabled.</p></div><div class="dialog-actions"><a class="button subtle" href="./example-shipment.xlsx" download><span data-icon="download"></span>Download example</a><button id="example-button" class="button primary">Use example load</button></div></dialog>
+<dialog id="help-dialog" aria-labelledby="help-title"><div class="dialog-header"><div><div class="eyebrow">QUICK START</div><h2 id="help-title">One row at a time.</h2></div><button class="icon-button" data-close="help-dialog" aria-label="Close help"><span data-icon="close"></span></button></div><ol class="help-steps"><li><strong>See the whole load.</strong><p>Orbit the trailer or switch to the top view. Tap a coloured item to see its details.</p></li><li><strong>Start at the front.</strong><p>Choose “Start loading”. Follow each item, or switch to a whole row. Bridged multi-pallet assemblies stay together.</p></li><li><strong>Confirm what you have loaded.</strong><p>“Confirm & next” records progress. Back, Next, and the row buttons only change the view.</p></li></ol><div class="format-note"><strong>Stacked loads</strong><p>Prepare the named base and upper unit as a matched stack before moving it into its assigned position. Height and gross weight include the pallets.</p><strong>Keyboard</strong><p>← / → navigate · Enter confirms the current item or row.</p><strong>Your progress</strong><p>Saved in this browser for each shipment. It is not shared with another device. Use “Reset” to start again.</p></div></dialog>
+<dialog id="reset-dialog" aria-labelledby="reset-title"><div class="dialog-header"><h2 id="reset-title">Start this load again?</h2><button class="icon-button" data-close="reset-dialog" aria-label="Close reset dialog"><span data-icon="close"></span></button></div><p>Clear the loading confirmations for this shipment on this device.</p><div class="dialog-actions"><button class="button subtle" data-close="reset-dialog">Keep progress</button><button id="reset-confirm" class="button primary">Reset progress</button></div></dialog>
+<div id="toast" class="toast" role="status" hidden></div>
+<noscript>This loading guide needs JavaScript enabled.</noscript>
+</body>
+</html>
