@@ -1,4 +1,4 @@
-const CACHE='load-guide-v5';
+const CACHE='load-guide-v6';
 const FILES=['./','./index.html','./guide.html','./landing.css','./load-preview.svg','./load-guide-qr.svg','./style.css','./app.js','./model.js','./scene.js','./icon.svg','./manifest.webmanifest','./example.json','./example-shipment.xlsx','./user-guide.html','./user-guide.pdf','./user-guide-images/01-landing.jpg','./user-guide-images/02-item-details.jpg','./user-guide-images/03-by-item.jpg','./user-guide-images/04-by-row.jpg','./vendor/three.module.js','./vendor/three.core.js','./vendor/OrbitControls.js','./vendor/xlsx.full.min.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('load-guide-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});

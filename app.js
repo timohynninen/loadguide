@@ -10,7 +10,7 @@ hydrateIcons();
 $('previous-button').setAttribute('aria-label','Back');
 $('next-button').setAttribute('aria-label','Next');
 let shipment,stages=[],scene=null,mode='overview',navigation='item',stageIndex=0,itemIndex=0,selectedId=null,completed=new Set(),showFuture=true,finished=false;
-let toastTimer;
+let toastTimer,rowDetailsOpen=true;
 function toast(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3000);}
 function safeGet(key){try{return localStorage.getItem(key);}catch{return null;}}
 function safeSet(key,value){try{localStorage.setItem(key,value);return true;}catch{return false;}}
@@ -46,14 +46,15 @@ function overviewContent(){
 function stageContent(){
  const stage=currentStage(),item=currentItem();
  const switcher=`<div class="stage-controls"><div class="mode-switch" role="group" aria-label="Instruction detail"><button data-mode="item" class="${navigation==='item'?'active':''}" aria-pressed="${navigation==='item'}">By item</button><button data-mode="row" class="${navigation==='row'?'active':''}" aria-pressed="${navigation==='row'}">By row</button></div><span class="stage-counter">${escape(stage.title)} · ${navigation==='item'?`${itemIndex+1}/${stage.items.length}`:`${stage.items.length} items`}</span></div>`;
- const list=navigation==='row'?`<div class="row-item-list" aria-label="Items in this row">${stage.items.map((i,n)=>`<button class="row-item ${i.id===item.id?'active':''} ${completed.has(i.id)?'done':''}" data-item-index="${n}" style="--cargo-color:${cargoColor(i)}"><span class="mini-badge" style="background:${cargoColor(i)};color:${cargoInk(i)}">${String(i.number).padStart(2,'0')}</span><span class="row-item-copy"><strong>${escape(i.label)}</strong><small>${format(i.weight)} kg${i.placement.base?' · upper':''}</small></span><span class="row-item-status">${completed.has(i.id)?'✓':''}</span></button>`).join('')}</div>`:'';
- return `${switcher}${list}${itemDetails(item)}`;
+ const list=navigation==='row'?`<div class="row-item-list" aria-label="Items in this row">${stage.items.map((i,n)=>`<button class="row-item ${rowDetailsOpen&&i.id===item.id?'active':''} ${completed.has(i.id)?'done':''}" data-item-index="${n}" aria-expanded="${rowDetailsOpen&&i.id===item.id}" style="--cargo-color:${cargoColor(i)}"><span class="mini-badge" style="background:${cargoColor(i)};color:${cargoInk(i)}">${String(i.number).padStart(2,'0')}</span><span class="row-item-copy"><strong>${escape(i.label)}</strong><small>${format(i.weight)} kg${i.placement.base?' · upper':''}</small></span><span class="row-item-status">${completed.has(i.id)?'✓':''}</span></button>`).join('')}</div>`:'';
+ return `${switcher}${list}${navigation==='item'||rowDetailsOpen?itemDetails(item):''}`;
 }
 function completeContent(){
  return `<div class="load-complete"><span class="item-loaded">✓</span><strong>${shipment.items.length} / ${shipment.items.length} loaded</strong><button id="complete-overview" class="button subtle">${svg('layers')}Overview</button></div>`;
 }
 function update({focus=false}={}){
  if(!shipment)return;
+ if(focus)rowDetailsOpen=true;
  const stage=currentStage(),item=currentItem(),overview=mode==='overview';
  document.querySelector('.app-shell').dataset.loadingMode=overview?'overview':'guide';
  $('overview-button').setAttribute('aria-pressed',String(overview));
@@ -104,8 +105,11 @@ function bindPanel(){
  });
  revealSelectedCard();
  $('complete-overview')?.addEventListener('click',showOverview);
- for(const b of document.querySelectorAll('.mode-switch button[data-mode]'))b.addEventListener('click',()=>{navigation=b.dataset.mode;update();});
- for(const b of document.querySelectorAll('[data-item-index]'))b.addEventListener('click',()=>{itemIndex=Number(b.dataset.itemIndex);update();});
+ for(const b of document.querySelectorAll('.mode-switch button[data-mode]'))b.addEventListener('click',()=>{navigation=b.dataset.mode;rowDetailsOpen=true;update();});
+ for(const b of document.querySelectorAll('[data-item-index]'))b.addEventListener('click',()=>{
+  const index=Number(b.dataset.itemIndex);rowDetailsOpen=index===itemIndex?!rowDetailsOpen:true;itemIndex=index;update();
+  document.querySelector(`[data-item-index="${index}"]`)?.focus({preventScroll:true});
+ });
  $('item-previous')?.addEventListener('click',()=>{itemIndex=Math.max(0,itemIndex-1);update();});
  $('item-next')?.addEventListener('click',()=>{itemIndex=Math.min(currentStage().items.length-1,itemIndex+1);update();});
 }
@@ -120,7 +124,7 @@ function renderFallback(){
 }
 function pickItem(id){
  if(mode==='overview'){selectedId=selectedId===id?null:id;finished=false;update();return;}
- for(let s=0;s<stages.length;s++){const index=stages[s].items.findIndex(i=>i.id===id);if(index>=0){stageIndex=s;itemIndex=index;finished=false;update();break;}}
+ for(let s=0;s<stages.length;s++){const index=stages[s].items.findIndex(i=>i.id===id);if(index>=0){stageIndex=s;itemIndex=index;rowDetailsOpen=true;finished=false;update();break;}}
 }
 function showOverview(){mode='overview';selectedId=null;finished=false;update({focus:true});}
 function begin(){
