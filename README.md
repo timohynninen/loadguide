@@ -13,4 +13,4 @@ The QR code encodes https://timohynninen.github.io/loadguide/guide.html directly
 
 All runtime assets are local. No account, backend, analytics or build step is required. Serve this directory over HTTP/HTTPS. GitHub Pages publishes the main branch root.
 
-This is an illustrative loading guide. It does not calculate axle loads or design cargo restraints. See THIRD_PARTY_NOTICES.md for vendored library licences.
+See THIRD_PARTY_NOTICES.md for vendored library licences.
